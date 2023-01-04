@@ -1,0 +1,80 @@
+## @file
+# CI configuration for Usb3DebugFeaturePkg
+#
+# Copyright (c) Microsoft Corporation
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+{
+    ## options defined edk2/.pytool/Plugin/LicenseCheck
+    "LicenseCheck": {
+        "IgnoreFiles": []
+    },
+    "EccCheck": {
+        ## Exception sample looks like below:
+        ## "ExceptionList": [
+        ##     "<ErrorID>", "<KeyWord>"
+        ## ]
+        "ExceptionList": [
+        ],
+        ## Both file path and directory path are accepted.
+        "IgnoreFiles": [
+        ]
+    },
+
+    "CompilerPlugin": {
+        "DscPath": "Usb3DebugFeaturePkg.dsc"
+    },
+
+    "CharEncodingCheck": {
+        "IgnoreFiles": []
+    },
+
+    "DependencyCheck": {
+        "AcceptableDependencies": [
+            "MdePkg/MdePkg.dec",
+            "MdeModulePkg/MdeModulePkg.dec",
+            "Usb3DebugFeaturePkg/Usb3DebugFeaturePkg.dec"
+        ],
+        "AcceptableDependencies-HOST_APPLICATION":[ # for host based unit tests
+            "UnitTestFrameworkPkg/UnitTestFrameworkPkg.dec"
+        ],
+        "IgnoreInf": []
+    },
+
+    "DscCompleteCheck": {
+        "IgnoreInf": [],
+        "DscPath": "Usb3DebugFeaturePkg.dsc"
+    },
+
+
+    #"HostUnitTestCompilerPlugin": {
+    #    "DscPath": "UnitTests/Usb3DebugFeaturePkgHostTest.dsc"
+    #},
+
+    #"HostUnitTestDscCompleteCheck": {
+    #    "IgnoreInf": [],
+    #    "DscPath": "UnitTests/Usb3DebugFeaturePkgHostTest.dsc"
+    #},
+
+    "GuidCheck": {
+        "IgnoreGuidName": [],
+        "IgnoreGuidValue": [],
+        "IgnoreFoldersAndFiles": [],
+        "IgnoreDuplicates": []
+    },
+
+    "LibraryClassCheck": {
+        "IgnoreLibraryClass": [],
+        "IgnoreHeaderFile": []
+    },
+
+    "SpellCheck": {
+        "IgnoreStandardPaths": [     # Standard Plugin defined paths that should be ignore
+        ],
+        "IgnoreFiles": [             # use gitignore syntax to ignore errors in matching files
+        ],
+        "ExtendWords": [           # words to extend to the dictionary for this package
+        ],
+        "AdditionalIncludePaths": [] # Additional paths to spell check relative to package root (wildcards supported)
+    }
+}
