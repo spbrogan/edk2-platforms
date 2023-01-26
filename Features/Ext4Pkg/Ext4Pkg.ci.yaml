@@ -73,6 +73,22 @@
         "IgnoreFiles": [             # use gitignore syntax to ignore errors in matching files
         ],
         "ExtendWords": [           # words to extend to the dictionary for this package
+            "compr",
+            "comprblk",
+            "dblocks",
+            "falcato",
+            "igeneration",
+            "incompat",
+            "isize",
+            "itable",
+            "kbytes",
+            "masix",
+            "mitrofanov",
+            "nocompr",
+            "projid",
+            "savva",
+            "secrm",
+            "wtime"
         ],
         "AdditionalIncludePaths": [] # Additional paths to spell check relative to package root (wildcards supported)
     }
