@@ -6,6 +6,3 @@ tags/
 .vscode/
 Build/
 Conf/
-node_modules/
-package.json
-package-lock.json
