@@ -65,9 +65,9 @@ class Settings(CiBuildSettingsManager, UpdateSettingsManager, CiSetupSettingsMan
         """
         return [
             {
-                "Path": "edk2",
+                "Path": ".dep/edk2",
                 "Url": "https://github.com/tianocore/edk2.git",
-                "Commit": "b670700ddf5eb1dd958d60eb4f2a51e0636206f9"  #https://github.com/tianocore/edk2/commit/b670700ddf5eb1dd958d60eb4f2a51e0636206f9
+                "Commit": "02fcfdce1e5ce86f1951191883e7e30de5aa08be"
             }
         ]
 
