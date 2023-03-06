@@ -15,3 +15,5 @@
 edk2-pytool-library
 edk2-pytool-extensions
 edk2-basetools
+antlr4-python3-runtime==4.7.1
+lcov-cobertura==2.0.2
