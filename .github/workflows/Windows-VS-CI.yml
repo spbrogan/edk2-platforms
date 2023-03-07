@@ -27,10 +27,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [Ext4Pkg, Usb3DebugFeaturePkg]
         include:
-          - archs: IA32,X64
-          - tool_chain_tag: VS2019
+          - package: Ext4Pkg
+            archs: IA32,X64,AARCH64
+            tool_chain_tag: VS2019
+          - package: Usb3DebugFeaturePkg
+            archs: IA32,X64
+            tool_chain_tag: VS2019
 
     steps:
     - name: Checkout repository
@@ -119,10 +122,9 @@ jobs:
       with:
         name: ${{ matrix.package }}-Setup-Update-Logs
         path: |
-          **/OVERRIDELOG.TXT
-          CISETUP.txt
-          SETUPLOG.txt
-          UPDATE_LOG.txt
+          Build/**/CISETUP.txt
+          Build/**/SETUPLOG.txt
+          Build/**/UPDATE_LOG.txt
           **/BASETOOLS_BUILD*.txt
         retention-days: 3
         if-no-files-found: ignore
@@ -133,8 +135,8 @@ jobs:
         name: ${{ matrix.package }}-Build-Logs
         path: |
           **/BUILD_REPORT.TXT
-          BUILDLOG_*.txt
-          CI_*.txt
+          Build/**/BUILDLOG_*.txt
+          Build/**/CI_*.txt
         retention-days: 7
         if-no-files-found: ignore
 
