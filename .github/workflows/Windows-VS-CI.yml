@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [Ext4Pkg, USB3DebugFeaturePkg]
+        package: [Ext4Pkg, Usb3DebugFeaturePkg]
         include:
           - archs: IA32,X64
           - tool_chain_tag: VS2019
