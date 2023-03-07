@@ -106,9 +106,9 @@ jobs:
     - name: Build Basetools
       run: python .dep/edk2/BaseTools/Edk2ToolsBuild.py -t ${{ matrix.tool_chain_tag }}
 
-    - - uses: actions/setup-node@v3
-        with:
-          node-version: '19'
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '19'
     - run: npm install -g cspell@5.20.0
 
     - name: CI Build
