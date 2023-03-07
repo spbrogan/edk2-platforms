@@ -1,0 +1,135 @@
+# This workflow runs Stuart CI build against the repository.
+#
+#
+# Note: Important: This file currently only works with "CI" builds. "Platform" builds can
+#                   be supported without much effort but that will be done in the future.
+#
+# Copyright (c) Microsoft Corporation.
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+
+name: "Windows-VS-CI"
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: windows-2019
+
+    permissions:
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [Ext4Pkg, USB3DebugFeaturePkg]
+        include:
+          - archs: IA32,X64
+          - tool_chain_tag: VS2019
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '>=3.11'
+
+    - name: Use Git Long Paths on Windows
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        git config --system core.longpaths true
+
+    - name: Install/Upgrade pip Modules
+      run: pip install -r pip-requirements.txt --upgrade
+
+    - name: Determine CI Settings File Supported Operations
+      id: get_ci_file_operations
+      shell: python
+      run: |
+        import importlib
+        import os
+        import sys
+        from pathlib import Path
+        from edk2toolext.invocables.edk2_ci_setup import CiSetupSettingsManager
+        from edk2toolext.invocables.edk2_setup import SetupSettingsManager
+
+        # Find the CI Settings file (usually in .pytool/CISettings.py)
+        ci_settings_file = list(Path(os.environ['GITHUB_WORKSPACE']).rglob('.pytool/CISettings.py'))
+
+        # Note: At this point, submodules have not been pulled, only one CI Settings file should exist
+        if len(ci_settings_file) != 1 or not ci_settings_file[0].is_file():
+            print("::error title=Workspace Error!::Failed to find CI Settings file!")
+            sys.exit(1)
+
+        ci_settings_file = ci_settings_file[0]
+
+        # Try Finding the Settings class in the file
+        module_name = 'ci_settings'
+
+        spec = importlib.util.spec_from_file_location(module_name, ci_settings_file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        try:
+            settings = getattr(module, 'Settings')
+        except AttributeError:
+            print("::error title=Workspace Error!::Failed to find Settings class in CI Settings file!")
+            sys.exit(1)
+
+        # Determine Which Operations Are Supported by the Settings Class
+        ci_setup_supported = issubclass(settings, CiSetupSettingsManager)
+        setup_supported = issubclass(settings, SetupSettingsManager)
+
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+            print(f'ci_setup_supported={str(ci_setup_supported).lower()}', file=fh)
+            print(f'setup_supported={str(setup_supported).lower()}', file=fh)
+
+    - name: Setup
+      if: steps.get_ci_file_operations.outputs.setup_supported == 'true'
+      run: stuart_setup -c .pytool/CISettings.py -t DEBUG -a ${{ matrix.archs }} TOOL_CHAIN_TAG=${{ matrix.tool_chain_tag }}
+
+    - name: CI Setup
+      if: steps.get_ci_file_operations.outputs.ci_setup_supported == 'true'
+      run: stuart_ci_setup -c .pytool/CISettings.py -t DEBUG -a ${{ matrix.archs }} TOOL_CHAIN_TAG=${{ matrix.tool_chain_tag }}
+
+    - name: Update
+      run: stuart_update -c .pytool/CISettings.py -t DEBUG -a ${{ matrix.archs }} TOOL_CHAIN_TAG=${{ matrix.tool_chain_tag }}
+
+    - name: Build Basetools
+      run: python .dep/edk2/BaseTools/Edk2ToolsBuild.py -t ${{ matrix.tool_chain_tag }}
+
+    - name: CI Build
+      run: stuart_ci_build -c .pytool/CISettings.py -t DEBUG -p ${{ matrix.package }} -a ${{ matrix.archs }} TOOL_CHAIN_TAG=${{ matrix.tool_chain_tag }}
+
+    - name: Upload Setup and Update Logs As An Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.package }}-Setup-Update-Logs
+        path: |
+          **/OVERRIDELOG.TXT
+          CISETUP.txt
+          SETUPLOG.txt
+          UPDATE_LOG.txt
+          **/BASETOOLS_BUILD*.txt
+        retention-days: 3
+        if-no-files-found: ignore
+
+    - name: Upload Build Log As An Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.package }}-Build-Logs
+        path: |
+          **/BUILD_REPORT.TXT
+          BUILDLOG_*.txt
+          CI_*.txt
+        retention-days: 7
+        if-no-files-found: ignore
+
